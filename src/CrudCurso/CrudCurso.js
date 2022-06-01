@@ -5,9 +5,9 @@ import Main from '../components/template/Main';
 
 const title = "Cadastro de Cursos";
 
-const urlAPI = "https://localhost:5000/api/curso";
+const urlAPI = "http://localhost:5001/api/curso";
 const initialState = {
-    curso: { id: 0,  codigo: 0, nomeCurso: '' },
+    curso: { idCurso: 0,  codigo: 0, nomeCurso: '' },
     lista: []
 }
 
@@ -27,18 +27,18 @@ export default class CrudCurso extends Component {
     salvar() {
         const curso = this.state.curso;
         curso.codigo = Number(curso.codigo);
-        const metodo = curso.id ? 'put' : 'post';
-        const url = urlAPI + "/" + curso.id;
+        const metodo = curso.idCurso ? 'put' : 'post';
+        const url = curso.idCurso ? `${urlAPI}/${curso.idCurso}` : urlAPI;
 
-        axios[metodo](urlAPI, curso)
+        axios[metodo](url, curso)
             .then(resp => {
                 const lista = this.getListaAtualizada(resp.data)
                 this.setState({ curso: initialState.curso, lista })
             })
     }
-    getListaAtualizada(curso, add = true) {
-        const lista = this.state.lista.filter(c => c.Id !== curso.Id);
-        if(add) lista.unshift(curso);
+    getListaAtualizada(curso, excluir = false) {
+        const lista = this.state.lista.filter(c => c.idCurso !== curso.idCurso);
+        if(!excluir) lista.unshift(curso);
         return lista;
     }
     atualizaCampo(event) {
@@ -58,7 +58,7 @@ export default class CrudCurso extends Component {
             console.log("entrou no confirm");
             axios['delete'](url, curso)
                 .then(resp => {
-                    const lista = this.getListaAtualizada(curso, false)
+                    const lista = this.getListaAtualizada(curso, true)
                     this.setState({ curso: initialState.curso, lista })
                 })
         }
@@ -107,7 +107,7 @@ export default class CrudCurso extends Component {
     renderTable() {
         return (
             <div className="listagem">
-                <table className="listaCurso" id="tblListaCursos">
+                <table className="listaCursos" id="tblListaCursos">
                     <thead>
                         <tr className="cabecTabela">
                             <th className="tabTituloCurso">Código Curso</th>

@@ -6,9 +6,9 @@ import Main from '../components/template/Main';
 const title = "Cadastro de Alunos";
 
 
-const urlAPI = "https://localhost:5000/api/aluno";
+const urlAPI = "http://localhost:5001/api/aluno";
 const initialState = {
-    aluno: { id: 0, ra: '', nome: '', codCurso: 0 },
+    aluno: { idAluno: 0, ra: '', nomeAluno: '', codCurso: 0 },
     lista: []
 }
 
@@ -30,18 +30,18 @@ export default class CrudAluno extends Component {
     salvar() {
         const aluno = this.state.aluno;
         aluno.codCurso = Number(aluno.codCurso);
-        const metodo = aluno.id ? 'put' : 'post';
-        const url = urlAPI + "/" + aluno.id;
+        const metodo = aluno.idAluno ? 'put' : 'post';
+        const url = aluno.idAluno ? `${urlAPI}/${aluno.idAluno}` : urlAPI;
 
-        axios[metodo](urlAPI, aluno)
+        axios[metodo](url, aluno)
             .then(resp => {
                 const lista = this.getListaAtualizada(resp.data)
                 this.setState({ aluno: initialState.aluno, lista })
             })
     }
-    getListaAtualizada(aluno, add = true) {
-        const lista = this.state.lista.filter(a => a.Id !== aluno.Id);
-        if(add) lista.unshift(aluno);
+    getListaAtualizada(aluno, excluir = false) {
+        const lista = this.state.lista.filter(a => a.idAluno !== aluno.idAluno);
+        if(!excluir) lista.unshift(aluno);
         return lista;
     }
     atualizaCampo(event) {
@@ -56,12 +56,12 @@ export default class CrudAluno extends Component {
         this.setState({ aluno })
     }
     remover(aluno) {
-        const url = urlAPI + "/" + aluno.id;
+        const url = urlAPI + "/" + aluno.idAluno;
         if (window.confirm("Confirma remoção do aluno: " + aluno.ra)) {
             console.log("entrou no confirm");
             axios['delete'](url, aluno)
                 .then(resp => {
-                    const lista = this.getListaAtualizada(aluno, false)
+                    const lista = this.getListaAtualizada(aluno, true)
                     this.setState({ aluno: initialState.aluno, lista })
                 })
         }
@@ -89,9 +89,9 @@ export default class CrudAluno extends Component {
                     id="nome"
                     placeholder="Nome do aluno"
                     className="form-input"
-                    name="nome"
+                    name="nomeAluno"
 
-                    value={this.state.aluno.nome}
+                    value={this.state.aluno.nomeAluno}
 
                     onChange={e => this.atualizaCampo(e)}
                 />
@@ -138,7 +138,7 @@ export default class CrudAluno extends Component {
 
                                 <tr key={aluno.id}>
                                     <td>{aluno.ra}</td>
-                                    <td>{aluno.nome}</td>
+                                    <td>{aluno.nomeAluno}</td>
                                     <td>{aluno.codCurso}</td>
                                     <td>
                                         <button onClick={() => this.carregar(aluno)}>
